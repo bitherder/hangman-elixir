@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+#
+# put this file into your path and use `<file> install` to add a new hook
+# or use it as a commandgit  to check changed files
+
+# parse and check params
+usage="$0 [install]"
+
+if [[ "$1" = "install" ]]; then
+  mydir=$(cd $(dirname "${BASH_SOURCE[0]}"); pwd)
+  myname=$(basename $0)
+  (
+    cd .git/hooks
+    # relative path to script source
+    my_source=$(realpath --relative-to=$PWD $mydir)/$myname
+
+    ln -sf $my_source pre-commit
+  )
+  exit
+elif [[ -n "$1" ]]; then
+  echo $usage 1>&2
+  exit 1
+fi
+
+changed_files=$(git diff --name-only --cached --diff-filter=ACMR)
+
+elixir_files=$(echo "$changed_files" | { egrep '\.exs?$' || true; })
+
+if [[ -z "$elixir_files" ]]; then
+  exit
+fi
+
+echo checking: $elixir_files
+
+mix credo --format oneline$(echo $elixir_files | sed -E -e 's/(^| +)/ --files-included /g')
+credo_exit=$status
+mix format --check-formatted $elixir_files
+format_exit=$status
+
+if [[ $credo_exit+$format_exit != 0 ]]; then
+  exit 2
+fi
