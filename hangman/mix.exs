@@ -26,6 +26,7 @@ defmodule Hangman.MixProject do
       {:dictionary, path: "../dictionary"},
       {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
+      {:mix_test_watch, "~> 1.0", only: [:dev, :test], runtime: false},
     ]
   end
 end
