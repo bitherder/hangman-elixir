@@ -27,6 +27,13 @@ defmodule HangmanTest do
     assert game.letters |> Enum.map(&lower?/1) |> all_true?
   end
 
+  test "state doesn't change if a game is won" do
+    game = Game.new_game("wombat")
+    game = Map.put(game, :game_state, :won)
+    {new_game, _tally} = Game.make_move(game, "x")
+    assert new_game == game
+  end
+
   defp lower?(string), do: String.match?(string, ~r/^[[:alnum:]]$/)
 
   defp all_true?(bool_list), do: bool_list |> Enum.reduce(&(&1 and &2))
