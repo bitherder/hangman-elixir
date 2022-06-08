@@ -3,11 +3,11 @@ defmodule Hangman.Impl.Game do
   Game logic for Hangman game
   """
 
-  alias Hangman.Types
+  alias Hangman.Type
 
   @type t :: %__MODULE__{
     turns_left: integer,
-    game_state: Types.state,
+    game_state: Type.state,
     letters: list(String.t),
     used: Mapset.t(String.t)
   }
