@@ -29,11 +29,14 @@ defmodule HangmanTest do
     assert game.letters |> Enum.map(&lower?/1) |> all_true?
   end
 
-  test "state doesn't change if a game is won" do
-    game = Game.new_game("wombat")
-    game = Map.put(game, :game_state, :won)
-    {new_game, _tally} = Game.make_move(game, "x")
-    assert new_game == game
+  test_with_params("state doesn't change if a game is won or lost",
+    fn (state) ->
+      game = Game.new_game("wombat")
+      game = Map.put(game, :game_state, state)
+      {new_game, _tally} = Game.make_move(game, "x")
+      assert new_game == game
+    end) do
+      [{:won}, {:lost}]
   end
 
   defp lower?(string), do: String.match?(string, ~r/^[[:alnum:]]$/)
