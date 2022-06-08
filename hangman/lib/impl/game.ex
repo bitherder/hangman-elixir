@@ -36,6 +36,10 @@ defmodule Hangman.Impl.Game do
     { game, tally(game)}
   end
 
+  def make_move(game = %{game_state: :lost}, _guess) do
+    { game, tally(game)}
+  end
+
   defp tally(game) do
     %{
       turn_left: game.turns_left,
