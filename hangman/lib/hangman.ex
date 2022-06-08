@@ -3,20 +3,14 @@ defmodule Hangman do
   Game logic for hangman
   """
   alias Hangman.Impl.Game
+  alias Hangman.Types
 
   @opaque game :: Game.t
-  @type state :: :intiaizing | :won | :lost | :good_guess | :bad_guess | :already_used
-  @type tally :: %{
-          turns_left: integer,
-          game_state: state,
-          letters: list(String.t),
-          used: list(String.t)
-        }
 
   @spec new_game :: game
   defdelegate new_game, to: Game
 
-  @spec make_move(game, String.t()) :: {game, tally}
+  @spec make_move(game, String.t()) :: {game, Types.tally}
   def make_move(_game, _guess) do
   end
 end
