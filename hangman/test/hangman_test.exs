@@ -10,7 +10,7 @@ defmodule HangmanTest do
 
   doctest Hangman
 
-    test "new game returns structure" do
+  test "new game returns structure" do
     game = Game.new_game()
     assert game.turns_left == 7
     assert game.game_state == :initializing
@@ -29,14 +29,16 @@ defmodule HangmanTest do
     assert game.letters |> Enum.map(&lower?/1) |> all_true?
   end
 
-  test_with_params("state doesn't change if a game is won or lost",
-    fn (state) ->
+  test_with_params(
+    "state doesn't change if a game is won or lost",
+    fn state ->
       game = Game.new_game("wombat")
       game = Map.put(game, :game_state, state)
       {new_game, _tally} = Game.make_move(game, "x")
       assert new_game == game
-    end) do
-      [{:won}, {:lost}]
+    end
+  ) do
+    [{:won}, {:lost}]
   end
 
   defp lower?(string), do: String.match?(string, ~r/^[[:alnum:]]$/)
