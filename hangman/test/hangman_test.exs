@@ -4,6 +4,8 @@ defmodule HangmanTest do
   """
 
   use ExUnit.Case
+  use ExUnit.Parameterized
+
   alias Hangman.Impl.Game
 
   doctest Hangman
