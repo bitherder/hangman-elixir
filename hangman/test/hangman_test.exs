@@ -29,6 +29,10 @@ defmodule HangmanTest do
     assert game.letters |> Enum.map(&lower?/1) |> all_true?
   end
 
+  defp lower?(string), do: String.match?(string, ~r/^[[:alnum:]]$/)
+
+  defp all_true?(bool_list), do: bool_list |> Enum.reduce(&(&1 and &2))
+
   test_with_params(
     "state doesn't change if a game is won or lost",
     fn state ->
@@ -41,7 +45,21 @@ defmodule HangmanTest do
     [{:won}, {:lost}]
   end
 
-  defp lower?(string), do: String.match?(string, ~r/^[[:alnum:]]$/)
+  test "a duplicate letter is reported" do
+    game = Game.new_game()
+    {game, _tally} = Game.make_move(game, "x")
+    assert game.game_state != :already_used
+    {game, _tally} = Game.make_move(game, "y")
+    assert game.game_state != :already_used
+    {game, _tally} = Game.make_move(game, "x")
+    assert game.game_state == :already_used
+  end
 
-  defp all_true?(bool_list), do: bool_list |> Enum.reduce(&(&1 and &2))
+  test "letters used are recorded" do
+    game = Game.new_game()
+    {game, _tally} = Game.make_move(game, "x")
+    {game, _tally} = Game.make_move(game, "y")
+    {game, _tally} = Game.make_move(game, "x")
+    assert MapSet.equal?(game.used, MapSet.new(["x", "y"]))
+  end
 end
