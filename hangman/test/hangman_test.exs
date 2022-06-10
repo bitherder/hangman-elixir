@@ -62,4 +62,9 @@ defmodule HangmanTest do
     {game, _tally} = Game.make_move(game, "x")
     assert MapSet.equal?(game.used, MapSet.new(["x", "y"]))
   end
+
+  test "reports good guess" do
+    game = Game.new_game("wombat")
+    assert {game, %{game_state: :good_guess}} = Game.make_move(game, "o")
+  end
 end
