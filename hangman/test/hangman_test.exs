@@ -65,6 +65,35 @@ defmodule HangmanTest do
 
   test "reports good guess" do
     game = Game.new_game("wombat")
-    assert {game, %{game_state: :good_guess}} = Game.make_move(game, "o")
+    assert {%{game_state: :good_guess}, %{game_state: :good_guess}} = Game.make_move(game, "o")
+  end
+
+  test "reports bad guess" do
+    game = Game.new_game("wombat")
+    assert {%{game_state: :bad_guess}, %{game_state: :bad_guess}} = Game.make_move(game, "x")
+  end
+
+  test "turns left is decremented for good guess" do
+    game = Game.new_game("wombat")
+    new_turns_left = game.turns_left - 1
+    assert {%{turns_left: ^new_turns_left}, %{turns_left: ^new_turns_left}} = Game.make_move(game, "w")
+  end
+
+  test "turns left is decremented for bad guess" do
+    game = Game.new_game("wombat")
+    new_turns_left = game.turns_left - 1
+    assert {%{turns_left: ^new_turns_left}, %{turns_left: ^new_turns_left}} = Game.make_move(game, "x")
+  end
+
+  test "game lost when last guess is bad" do
+    game = Game.new_game("wombat")
+    almost_lost = Enum.reduce(["p", "d", "q", "x", "y", "z"], game, &(elem(Game.make_move(&2, &1), 0)))
+    assert {%{game_state: :lost}, %{game_state: :lost}} = Game.make_move(almost_lost, "c")
+  end
+
+  test "game lost when last guess completes word" do
+    game = Game.new_game("wombat")
+    almost_lost = Enum.reduce(["w", "o", "m", "b", "a"], game, &(elem(Game.make_move(&2, &1), 0)))
+    assert {%{game_state: :won}, %{game_state: :won}} = Game.make_move(almost_lost, "t")
   end
 end

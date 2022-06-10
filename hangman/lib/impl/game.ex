@@ -38,7 +38,8 @@ defmodule Hangman.Impl.Game do
   end
 
   def make_move(game, guess) do
-    accept_guess(game, guess, MapSet.member?(game.used, guess))
+    game
+    |> accept_guess(guess, MapSet.member?(game.used, guess))
     |> return_with_tally()
   end
 
@@ -48,18 +49,41 @@ defmodule Hangman.Impl.Game do
 
   defp accept_guess(game, guess, _already_used) do
     %{game | used: MapSet.put(game.used, guess)}
+    |> score_game(Enum.member?(game.letters, guess))
+  end
+
+  defp score_game(game, _in_word = true) do
+    state = good_state(MapSet.subset?(MapSet.new(game.letters), game.used))
+    %{game | game_state: state, turns_left: game.turns_left - 1}
+  end
+
+  defp score_game(game = %{turns_left: 1}, _in_word) do
+    %{game | game_state: :lost, turns_left: 0}
+  end
+
+  defp score_game(game, _in_word) do
+    turns_left = game.turns_left - 1
+    %{game | game_state: :bad_guess, turns_left: turns_left}
+  end
+
+  defp return_with_tally(game) do
+    {game, tally(game)}
   end
 
   defp tally(game) do
     %{
-      turn_left: game.turns_left,
+      turns_left: game.turns_left,
       game_state: game.game_state,
       letters: [],
       used: game.used |> MapSet.to_list() |> Enum.sort()
     }
   end
 
-  defp return_with_tally(game) do
-    {game, tally(game)}
+  defp good_state(_won = true) do
+    :won
+  end
+
+  defp good_state(_won) do
+    :good_guess
   end
 end
