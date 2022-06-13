@@ -103,4 +103,28 @@ defmodule HangmanTest do
     almost_lost = Enum.reduce(["w", "o", "m", "b", "a"], game, &elem(Game.make_move(&2, &1), 0))
     assert {%{game_state: :won}, %{game_state: :won}} = Game.make_move(almost_lost, "t")
   end
+
+  test "handles a sequence of moves" do
+    [
+      ["a", :bad_guess, 6, ~w[_ _ _ _ _], ~w[a]],
+      ["a", :bad_guess, 6, ~w[_ _ _ _ _], ~w[a]],
+      ["e", :good_guess, 6, ~w[_ e _ _ _], ~w[a e]],
+      ["x", :bad_guess, 5, ~w[_ _ _ _ _], ~w[a e x]]
+    ]
+    |>assure_sequence_of_moves()
+  end
+
+  defp assure_sequence_of_moves(script) do
+    game = Game.new_game()
+    Enum.reduce(script, game, &check_one_move/2)
+  end
+
+  def check_one_move([guess, state, turns, letters, used], game) do
+    {game, tally} = Game.make_move(game, guess)
+
+    assert tally.game_state == state
+    assert tally.turns_left == turns
+    assert tally.letters == letters
+    assert tally.used == used
+  end
 end
