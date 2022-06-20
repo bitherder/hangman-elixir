@@ -39,32 +39,34 @@ defmodule Hangman.Impl.Game do
 
   def make_move(game, guess) do
     game
-    |> accept_guess(guess, MapSet.member?(game.used, guess))
+    |> accept_guess(guess)
     |> return_with_tally()
   end
 
-  defp accept_guess(game, _guess, _already_used = true) do
+  defp accept_guess(game, guess) do
+    %{game | used: MapSet.put(game.used, guess)}
+    |> score_game(guess in game.used, guess in game.letters)
+  end
+
+  defp score_game(game, _guessed = true, _in_word) do
     %{game | game_state: :already_used}
   end
 
-  defp accept_guess(game, guess, _already_used) do
-    %{game | used: MapSet.put(game.used, guess)}
-    |> score_game(Enum.member?(game.letters, guess))
+  defp score_game(game, _guessed, _in_word = true) do
+    state = good_state(MapSet.subset?(MapSet.new(game.letters), game.used))
+    %{game | game_state: state}
   end
 
-  defp score_game(game, _in_word = true) do
-    state = good_state(MapSet.subset?(MapSet.new(game.letters), game.used))
+  defp score_game(game, _guessed, _in_word) do
+    state = bad_state(game.turns_left)
     %{game | game_state: state, turns_left: game.turns_left - 1}
   end
 
-  defp score_game(game = %{turns_left: 1}, _in_word) do
-    %{game | game_state: :lost, turns_left: 0}
-  end
+  defp good_state(_won = true), do: :won
+  defp good_state(_won), do: :good_guess
 
-  defp score_game(game, _in_word) do
-    turns_left = game.turns_left - 1
-    %{game | game_state: :bad_guess, turns_left: turns_left}
-  end
+  defp bad_state(_turns_left = 1), do: :lost
+  defp bad_state(_turns_left), do: :bad_guess
 
   defp return_with_tally(game) do
     {game, tally(game)}
@@ -74,16 +76,17 @@ defmodule Hangman.Impl.Game do
     %{
       turns_left: game.turns_left,
       game_state: game.game_state,
-      letters: [],
+      letters: letters_found(game.letters, game.used),
       used: game.used |> MapSet.to_list() |> Enum.sort()
     }
   end
 
-  defp good_state(_won = true) do
-    :won
+  @spec letters_found([String.t()], MapSet.t(String.t())) :: [String.t()]
+  defp letters_found(letters, used) do
+    letters
+    |> Enum.map(fn letter -> reveal_used(letter, MapSet.member?(used, letter)) end)
   end
 
-  defp good_state(_won) do
-    :good_guess
-  end
+  defp reveal_used(letter, _used? = true), do: letter
+  defp reveal_used(_letter, _used?), do: "_"
 end
