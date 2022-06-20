@@ -43,6 +43,15 @@ defmodule Hangman.Impl.Game do
     |> return_with_tally()
   end
 
+  defp accept_guess(game, guess) when guess < "a" or guess > "z" do
+    %{
+      game |
+      game_state: :bad_guess,
+      used: MapSet.put(game.used, guess),
+      turns_left: game.turns_left - 1
+    }
+  end
+
   defp accept_guess(game, guess) do
     %{game | used: MapSet.put(game.used, guess)}
     |> score_game(guess in game.used, guess in game.letters)

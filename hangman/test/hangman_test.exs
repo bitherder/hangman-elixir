@@ -71,11 +71,11 @@ defmodule HangmanTest do
     assert {%{game_state: :bad_guess}, %{game_state: :bad_guess}} = Game.make_move(game, "x")
   end
 
-  test "turns left is decremented for good guess" do
+  test "turns left is not decremented for good guess" do
     game = Game.new_game("wombat")
-    new_turns_left = game.turns_left - 1
+    turns_left = game.turns_left
 
-    assert {%{turns_left: ^new_turns_left}, %{turns_left: ^new_turns_left}} =
+    assert {%{turns_left: ^turns_left}, %{turns_left: ^turns_left}} =
              Game.make_move(game, "w")
   end
 
@@ -100,6 +100,11 @@ defmodule HangmanTest do
     game = Game.new_game("wombat")
     almost_lost = Enum.reduce(["w", "o", "m", "b", "a"], game, &elem(Game.make_move(&2, &1), 0))
     assert {%{game_state: :won}, %{game_state: :won}} = Game.make_move(almost_lost, "t")
+  end
+
+  test "bad_move for upper case letters" do
+    game = Game.new_game("Wombat")
+    assert {%{game_state: :bad_guess}, %{game_state: :bad_guess}} = Game.make_move(game, "W")
   end
 
   test "handles a sequence of moves" do
