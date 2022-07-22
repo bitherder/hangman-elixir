@@ -22,6 +22,10 @@ defmodule TextClient.MixProject do
   defp deps do
     [
       {:hangman, path: "../hangman"},
+      {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
+      {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
+      {:mix_test_watch, "~> 1.0", only: [:dev, :test], runtime: false},
+      {:ex_parameterized, "~> 1.3.7", only: [:test], runtime: false}
     ]
   end
 end
