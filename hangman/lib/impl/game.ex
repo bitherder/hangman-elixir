@@ -43,6 +43,16 @@ defmodule Hangman.Impl.Game do
     |> return_with_tally()
   end
 
+  @spec tally(Game.t) :: Type.tally()
+  def tally(game) do
+    %{
+      turns_left: game.turns_left,
+      game_state: game.game_state,
+      letters: letters_found(game.letters, game.used),
+      used: game.used |> MapSet.to_list() |> Enum.sort()
+    }
+  end
+
   defp accept_guess(game, guess) when guess < "a" or guess > "z" do
     %{
       game |
@@ -79,15 +89,6 @@ defmodule Hangman.Impl.Game do
 
   defp return_with_tally(game) do
     {game, tally(game)}
-  end
-
-  defp tally(game) do
-    %{
-      turns_left: game.turns_left,
-      game_state: game.game_state,
-      letters: letters_found(game.letters, game.used),
-      used: game.used |> MapSet.to_list() |> Enum.sort()
-    }
   end
 
   @spec letters_found([String.t()], MapSet.t(String.t())) :: [String.t()]
